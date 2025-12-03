@@ -1,0 +1,71 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e12]:
+      - button "Open issues overlay" [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: "0"
+          - generic [ref=e16]: "1"
+        - generic [ref=e17]: Issue
+      - button "Collapse issues badge" [ref=e18]:
+        - img [ref=e19]
+  - alert [ref=e21]
+  - navigation [ref=e22]:
+    - generic [ref=e24]:
+      - link "Text Sanitizer Pro" [ref=e26] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e27]: Text Sanitizer Pro
+      - generic [ref=e28]:
+        - link "Sanitizer" [ref=e29] [cursor=pointer]:
+          - /url: /
+          - text: Sanitizer
+        - link "Messages" [ref=e31] [cursor=pointer]:
+          - /url: /messages
+          - text: Messages
+        - link "Announcements" [ref=e32] [cursor=pointer]:
+          - /url: /announcements
+          - text: Announcements
+        - link "Feedback" [ref=e33] [cursor=pointer]:
+          - /url: /feedback
+          - text: Feedback
+        - link "Privacy" [ref=e34] [cursor=pointer]:
+          - /url: /privacy
+          - text: Privacy
+        - generic [ref=e35]:
+          - button "Request New Word" [ref=e36]:
+            - img [ref=e37]
+          - button "Settings" [ref=e39]:
+            - img [ref=e40]
+  - main [ref=e44]:
+    - generic [ref=e45]:
+      - generic:
+        - insertion
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: "Input Text:"
+          - generic [ref=e50]:
+            - textbox "Input Text:" [ref=e51]:
+              - /placeholder: Enter text to sanitize...
+            - generic:
+              - generic: "Words: 0"
+              - generic: "Chars: 0"
+              - generic: "No Spaces: 0"
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]: "Output Text:"
+            - button "Copy" [disabled] [ref=e55]
+          - generic [ref=e56]:
+            - generic [ref=e58]: Sanitized text will appear here...
+            - generic:
+              - generic: "Words: 0"
+              - generic: "Chars: 0"
+              - generic: "Hyphens: 0"
+      - generic:
+        - insertion
+  - button "Open chat" [ref=e59]:
+    - img [ref=e60]
+```

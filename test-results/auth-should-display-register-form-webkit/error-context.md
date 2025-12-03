@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e13]:
+      - button "Open issues overlay" [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: "0"
+          - generic [ref=e17]: "1"
+        - generic [ref=e18]: Issue
+      - button "Collapse issues badge" [ref=e19]:
+        - img [ref=e20]
+  - alert [ref=e22]
+  - navigation [ref=e23]:
+    - generic [ref=e25]:
+      - link "Text Sanitizer Pro" [ref=e27]:
+        - /url: /
+        - generic [ref=e28]: Text Sanitizer Pro
+      - generic [ref=e29]:
+        - link "Sanitizer" [ref=e30]:
+          - /url: /
+          - text: Sanitizer
+        - link "Messages" [ref=e31]:
+          - /url: /messages
+          - text: Messages
+        - link "Announcements" [ref=e32]:
+          - /url: /announcements
+          - text: Announcements
+        - link "Feedback" [ref=e33]:
+          - /url: /feedback
+          - text: Feedback
+        - link "Privacy" [ref=e34]:
+          - /url: /privacy
+          - text: Privacy
+        - generic [ref=e35]:
+          - button "Request New Word" [ref=e36]:
+            - img [ref=e37]
+          - button "Settings" [ref=e39]:
+            - img [ref=e40]
+  - main [ref=e44]:
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - heading "404" [level=1] [ref=e48]
+        - heading "Page Not Found" [level=2] [ref=e49]
+        - paragraph [ref=e50]: Sorry, we couldn't find the page you're looking for. It might have been moved or deleted.
+      - generic [ref=e51]:
+        - link "Go back home" [ref=e52]:
+          - /url: /
+          - button "Go back home" [ref=e53]
+        - link "Contact support" [ref=e54]:
+          - /url: /contact
+          - button "Contact support" [ref=e55]
+  - button "Open chat" [ref=e56]:
+    - img [ref=e57]
+```

@@ -1,0 +1,71 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e13]:
+      - button "Open issues overlay" [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: "0"
+          - generic [ref=e17]: "1"
+        - generic [ref=e18]: Issue
+      - button "Collapse issues badge" [ref=e19]:
+        - img [ref=e20]
+  - alert [ref=e22]
+  - navigation [ref=e23]:
+    - generic [ref=e25]:
+      - link "Text Sanitizer Pro" [ref=e27]:
+        - /url: /
+        - generic [ref=e28]: Text Sanitizer Pro
+      - generic [ref=e29]:
+        - link "Sanitizer" [ref=e30]:
+          - /url: /
+          - text: Sanitizer
+        - link "Messages" [ref=e32]:
+          - /url: /messages
+          - text: Messages
+        - link "Announcements" [ref=e33]:
+          - /url: /announcements
+          - text: Announcements
+        - link "Feedback" [ref=e34]:
+          - /url: /feedback
+          - text: Feedback
+        - link "Privacy" [ref=e35]:
+          - /url: /privacy
+          - text: Privacy
+        - generic [ref=e36]:
+          - button "Request New Word" [ref=e37]:
+            - img [ref=e38]
+          - button "Settings" [ref=e40]:
+            - img [ref=e41]
+  - main [ref=e45]:
+    - generic [ref=e46]:
+      - generic:
+        - insertion
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic [ref=e50]: "Input Text:"
+          - generic [ref=e51]:
+            - textbox "Input Text:" [ref=e52]:
+              - /placeholder: Enter text to sanitize...
+            - generic:
+              - generic: "Words: 0"
+              - generic: "Chars: 0"
+              - generic: "No Spaces: 0"
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: "Output Text:"
+            - button "Copy" [disabled] [ref=e56]
+          - generic [ref=e57]:
+            - generic [ref=e59]: Sanitized text will appear here...
+            - generic:
+              - generic: "Words: 0"
+              - generic: "Chars: 0"
+              - generic: "Hyphens: 0"
+      - generic:
+        - insertion
+  - button "Open chat" [ref=e60]:
+    - img [ref=e61]
+```

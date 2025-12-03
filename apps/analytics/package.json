@@ -1,0 +1,28 @@
+{
+  "name": "@micro-frontend/analytics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Analytics micro frontend for the Micro Frontend Platform",
+  "scripts": {
+    "dev": "next dev -p 3003",
+    "build": "next build",
+    "start": "next start -p 3003",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@micro-frontend/config": "1.0.0",
+    "@micro-frontend/design-tokens": "1.0.0",
+    "@micro-frontend/shared-state": "1.0.0",
+    "@micro-frontend/shared-utils": "1.0.0",
+    "@micro-frontend/ui-kit": "1.0.0",
+    "next": "^15.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}

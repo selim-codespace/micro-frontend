@@ -1,0 +1,25 @@
+{
+  "name": "@micro-frontend/ui-kit",
+  "version": "1.0.0",
+  "description": "UI component library for the Micro Frontend Platform",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@micro-frontend/design-tokens": "1.0.0",
+    "@micro-frontend/shared-state": "1.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^6.9.1"
+  }
+}

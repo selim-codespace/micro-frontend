@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e12]:
+      - button "Open issues overlay" [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: "0"
+          - generic [ref=e16]: "1"
+        - generic [ref=e17]: Issue
+      - button "Collapse issues badge" [ref=e18]:
+        - img [ref=e19]
+  - alert [ref=e21]
+  - navigation [ref=e22]:
+    - generic [ref=e24]:
+      - link "Text Sanitizer Pro" [ref=e26] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e27]: Text Sanitizer Pro
+      - generic [ref=e28]:
+        - link "Sanitizer" [ref=e29] [cursor=pointer]:
+          - /url: /
+          - text: Sanitizer
+        - link "Messages" [ref=e30] [cursor=pointer]:
+          - /url: /messages
+          - text: Messages
+        - link "Announcements" [ref=e31] [cursor=pointer]:
+          - /url: /announcements
+          - text: Announcements
+        - link "Feedback" [ref=e32] [cursor=pointer]:
+          - /url: /feedback
+          - text: Feedback
+        - link "Privacy" [ref=e33] [cursor=pointer]:
+          - /url: /privacy
+          - text: Privacy
+        - generic [ref=e34]:
+          - button "Request New Word" [ref=e35]:
+            - img [ref=e36]
+          - button "Settings" [ref=e38]:
+            - img [ref=e39]
+  - main [ref=e43]:
+    - generic [ref=e45]:
+      - generic [ref=e46]:
+        - heading "404" [level=1] [ref=e47]
+        - heading "Page Not Found" [level=2] [ref=e48]
+        - paragraph [ref=e49]: Sorry, we couldn't find the page you're looking for. It might have been moved or deleted.
+      - generic [ref=e50]:
+        - link "Go back home" [ref=e51] [cursor=pointer]:
+          - /url: /
+          - button "Go back home" [ref=e52]
+        - link "Contact support" [ref=e53] [cursor=pointer]:
+          - /url: /contact
+          - button "Contact support" [ref=e54]
+  - button "Open chat" [ref=e55]:
+    - img [ref=e56]
+```
