@@ -18,7 +18,8 @@
     "@module-federation/nextjs-mf": "^8.8.49",
     "next": "^15.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "webpack": "^5.103.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
