@@ -1,13 +1,14 @@
 {
-  "name": "@micro-frontend/notifications",
+  "name": "@micro-frontend/host",
   "version": "1.0.0",
   "private": true,
-  "description": "Notifications micro frontend for the Micro Frontend Platform",
+  "description": "Host application for the Micro Frontend Platform",
   "scripts": {
-    "dev": "next dev -p 3006",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3006",
-    "lint": "next lint"
+    "start": "next start",
+    "lint": "next lint",
+    "vercel-build": "node vercel-simple-build.js"
   },
   "dependencies": {
     "@micro-frontend/config": "1.0.0",
@@ -15,7 +16,7 @@
     "@micro-frontend/shared-state": "1.0.0",
     "@micro-frontend/shared-utils": "1.0.0",
     "@micro-frontend/ui-kit": "1.0.0",
-    "next": "14.2.15",
+    "next": "^15.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
