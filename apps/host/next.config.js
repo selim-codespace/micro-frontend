@@ -1,9 +1,7 @@
-const { NextFederationPlugin } = require('@module-federation/nextjs-mf');
+// Setup environment variables
+require('./setup-env');
 
-// Ensure webpack is available for Module Federation
-if (process.env.NEXT_PRIVATE_LOCAL_WEBPACK !== 'true') {
-  console.warn('NEXT_PRIVATE_LOCAL_WEBPACK is not set to true. This may cause issues with Module Federation.');
-}
+const { NextFederationPlugin } = require('@module-federation/nextjs-mf');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

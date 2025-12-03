@@ -4,11 +4,13 @@
   "private": true,
   "description": "Host application for the Micro Frontend Platform",
   "scripts": {
+    "preinstall": "npm install webpack@^5.103.0 || echo 'webpack already installed'",
+    "prebuild": "npm install webpack@^5.103.0 || echo 'webpack already installed'",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "NEXT_PRIVATE_LOCAL_WEBPACK=true next build"
+    "vercel-build": "node setup-env.js && next build"
   },
   "dependencies": {
     "@micro-frontend/config": "1.0.0",
