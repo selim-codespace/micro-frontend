@@ -8,20 +8,5 @@
       }
     }
   ],
-  "env": {
-    "NEXT_PRIVATE_LOCAL_WEBPACK": "true",
-    "NODE_OPTIONS": "--openssl-legacy-provider"
-  },
-  "buildCommand": "cd apps/host && npm install webpack@^5.103.0 && NEXT_PRIVATE_LOCAL_WEBPACK=true next build",
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
-    }
-  ]
+  "buildCommand": "cd apps/host && npm run vercel-build"
 }

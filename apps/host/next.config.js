@@ -1,5 +1,10 @@
 const { NextFederationPlugin } = require('@module-federation/nextjs-mf');
 
+// Ensure webpack is available for Module Federation
+if (process.env.NEXT_PRIVATE_LOCAL_WEBPACK !== 'true') {
+  console.warn('NEXT_PRIVATE_LOCAL_WEBPACK is not set to true. This may cause issues with Module Federation.');
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
