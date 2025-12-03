@@ -1,8 +1,5 @@
 // Setup environment variables for Module Federation
-process.env.NEXT_PRIVATE_LOCAL_WEBPACK = process.env.NEXT_PRIVATE_LOCAL_WEBPACK || 'true';
-
-console.log('Environment variables set for Module Federation:');
-console.log('- NEXT_PRIVATE_LOCAL_WEBPACK:', process.env.NEXT_PRIVATE_LOCAL_WEBPACK);
+require('./aggressive-patch');
 
 // Export for use in other scripts
 module.exports = {

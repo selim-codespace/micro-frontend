@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "apps/host/package.json",
@@ -8,9 +9,8 @@
       }
     }
   ],
-  "installCommand": "cd apps/host && echo \"NEXT_PRIVATE_LOCAL_WEBPACK=$NEXT_PRIVATE_LOCAL_WEBPACK\" && npm install webpack@^5.103.0 || echo 'webpack install skipped'",
-  "buildCommand": "cd apps/host && npm run vercel-build",
   "env": {
     "NEXT_PRIVATE_LOCAL_WEBPACK": "true"
-  }
+  },
+  "buildCommand": "cd apps/host && npm run vercel-build"
 }

@@ -4,13 +4,14 @@
   "private": true,
   "description": "Host application for the Micro Frontend Platform",
   "scripts": {
-    "preinstall": "npm install webpack@^5.103.0 || echo 'webpack already installed'",
-    "prebuild": "npm install webpack@^5.103.0 || echo 'webpack already installed'",
+    "preinstall": "node set-system-env.js && npm install webpack@^5.103.0 || echo 'webpack already installed'",
+    "prebuild": "node set-system-env.js && node prebuild.js && node patch-mf-plugin.js && node direct-patch-mf.js && node find-mf-check.js && node apply-manual-mf.js && npm install webpack@^5.103.0 || echo 'webpack already installed'",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "node setup-env.js && next build"
+    "test-env": "node test-env.js",
+    "vercel-build": "node simulate-vercel-build.js"
   },
   "dependencies": {
     "@micro-frontend/config": "1.0.0",
@@ -18,7 +19,7 @@
     "@micro-frontend/shared-state": "1.0.0",
     "@micro-frontend/shared-utils": "1.0.0",
     "@micro-frontend/ui-kit": "1.0.0",
-    "@module-federation/nextjs-mf": "^8.8.49",
+    "@module-federation/nextjs-mf": "8.8.49",
     "next": "^15.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
