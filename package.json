@@ -17,7 +17,8 @@
     "test": "turbo run test",
     "dev:all": "turbo run dev --parallel",
     "build:affected": "turbo run build --filter=[HEAD^1]",
-    "create:microfrontend": "node ./bin/create-microfrontend.js"
+    "create:microfrontend": "node ./bin/create-microfrontend.js",
+    "vercel-build": "turbo run build --filter=@micro-frontend/host"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
