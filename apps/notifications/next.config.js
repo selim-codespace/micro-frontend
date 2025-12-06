@@ -1,32 +1,27 @@
-const { NextFederationPlugin } = require('@module-federation/nextjs-mf');
+const { NextFederationPlugin } = require("@module-federation/nextjs-mf");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // swcMinify: true,  // Commented out as it's not recognized
-  // experimental: {    // Commented out as appDir is default in newer versions
-  //   appDir: true,
-  // },
+
   webpack(config, options) {
+    const { isServer } = options;
+
     config.plugins.push(
       new NextFederationPlugin({
-        name: 'notifications',
-        filename: 'static/chunks/remoteEntry.js',
+        name: "notifications",
+        filename: "static/chunks/remoteEntry.js",
         exposes: {
-          './NotificationsPage': './app/page',
+          "./NotificationsPage": "./pages/index",
         },
         remotes: {
-          host: 'host@http://localhost:3000/_next/static/chunks/remoteEntry.js',
+          host: `host@${
+            process.env.HOST_URL || "http://localhost:3000"
+          }/_next/static/${isServer ? "ssr" : "chunks"}/remoteEntry.js`,
         },
         shared: {
-          react: {
-            singleton: true,
-            requiredVersion: false,
-          },
-          'react-dom': {
-            singleton: true,
-            requiredVersion: false,
-          },
+          react: { singleton: true, requiredVersion: false },
+          "react-dom": { singleton: true, requiredVersion: false },
         },
       })
     );

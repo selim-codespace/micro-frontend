@@ -1,180 +1,335 @@
-# Architecture Documentation
+# 🏗️ Architecture Documentation
 
 ## Overview
 
-The Micro Frontend Platform is built using a modular architecture that allows independent teams to develop, deploy, and scale features without touching each other's codebase.
+The Micro Frontend Platform is an enterprise-grade application demonstrating scalable frontend architecture patterns used by major tech companies. This document details the technical architecture, design decisions, and implementation patterns.
 
-## High-Level Architecture
-
-```
-┌──────────────────────┐
-│        Host Shell     │
-│ (Navigation, Auth, UI)│
-└───────────┬──────────┘
-            │
-   Dynamic Module Loader
-            │
-┌───────────┴───────────┐
-│         Registry        │
-│ (URLs of remotes)       │
-└───────────┬───────────┘
-            │
-   ┌────────┼──────────────┐
-   │        │               │
-┌──────┐┌───────┐┌──────────┐
-│ Auth ││Dashboard││Analytics │  ← Independent apps
-└──────┘└───────┘└──────────┘
-```
-
-## Architecture Principles
-
-### Independence
-Each domain should build & deploy alone. Teams can work independently without affecting each other.
-
-### Isolation
-No remote should mutate another's state. Each micro frontend manages its own state.
-
-### Composition over Coupling
-Micro frontends are composed together rather than tightly coupled.
-
-### SSR Compatibility
-Module Federation works on both server and client sides.
-
-### Zero Shared Implicit Dependencies
-All shared dependencies are explicitly declared.
-
-### Controlled Shared Libraries
-Only specific libraries (UI kit, design tokens, network layer, models) are shared.
-
-### Versioned Contracts
-API surfaces are defined via TypeScript models.
-
-## Monorepo Structure
-
-The project uses Turborepo to manage a monorepo structure:
+## System Architecture
 
 ```
-/apps
-  /host          # Host application (shell)
-  /auth          # Authentication micro frontend
-  /dashboard     # Dashboard micro frontend
-  /analytics     # Analytics micro frontend
-  /billing       # Billing micro frontend
-  /admin         # Admin micro frontend
-  /notifications # Notifications micro frontend
-/packages
-  /ui-kit        # Shared UI components
-  /shared-utils  # Utility functions
-  /shared-state  # State management
-  /api-client    # API client
-  /design-tokens # Design tokens
-  /config        # Configuration utilities
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              BROWSER/CLIENT                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         HOST SHELL (Port 3000)                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         Module Federation Runtime                     │   │
+│  │  • Loads remote entries from micro frontend URLs                     │   │
+│  │  • Manages shared dependency versions (React, React-DOM)             │   │
+│  │  • Handles fallbacks when remotes unavailable                        │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌──────────────┬──────────────┬──────────────┬──────────────┬─────────┐   │
+│  │  Navigation  │  Auth State  │    Theme     │   Layout     │ Router  │   │
+│  └──────────────┴──────────────┴──────────────┴──────────────┴─────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+          │               │               │               │
+          ▼               ▼               ▼               ▼
+┌───────────────┐ ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+│  AUTH (3001)  │ │DASHBOARD(3002)│ │ANALYTICS(3003)│ │ BILLING(3004) │
+│  ───────────  │ │  ───────────  │ │  ───────────  │ │  ───────────  │
+│  LoginForm    │ │  DashboardPage│ │  AnalyticsPage│ │  BillingPage  │
+│  RegisterForm │ │  Widgets      │ │  Charts       │ │  Plans        │
+└───────────────┘ └───────────────┘ └───────────────┘ └───────────────┘
+          │               │               │               │
+          └───────────────┴───────────────┴───────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           SHARED PACKAGES                                    │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │
+│  │   ui-kit     │ │ shared-state │ │  api-client  │ │design-tokens │       │
+│  │  ──────────  │ │  ──────────  │ │  ──────────  │ │  ──────────  │       │
+│  │  Components  │ │  Zustand     │ │  HTTP Client │ │  CSS Vars    │       │
+│  │  Button,Card │ │  useAuth()   │ │  Types       │ │  Colors      │       │
+│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘       │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Communication Patterns
-
-### Allowed Communication
-- Shared state (readonly)
-- Event bus
-- Federated SDK methods
-
-### Restricted Communication
-- Direct component imports between remotes
-- Global state mutation
-- Direct API call requests between remotes
-
-## Authentication Architecture
+## Directory Structure
 
 ```
-Host handles:
-  - login
-  - refresh
-  - session store
-Remotes request session from host via:
-  - shared auth SDK
-  - cookie-based session
+micro-frontend-platform/
+├── apps/                           # Micro Frontend Applications
+│   ├── host/                       # Shell application (Port 3000)
+│   │   ├── pages/                  # Next.js Pages Router
+│   │   │   ├── _app.tsx           # Global app wrapper
+│   │   │   ├── _document.tsx      # HTML document customization
+│   │   │   ├── index.tsx          # Landing page
+│   │   │   ├── dashboard.tsx      # Dashboard page
+│   │   │   ├── analytics.tsx      # Analytics page
+│   │   │   ├── auth.tsx           # Auth page
+│   │   │   ├── billing.tsx        # Billing page
+│   │   │   ├── admin.tsx          # Admin page
+│   │   │   └── notifications.tsx  # Notifications page
+│   │   ├── components/            # Host-specific components
+│   │   │   └── Layout.tsx         # Sidebar layout
+│   │   ├── styles/
+│   │   │   └── globals.css        # Design system & utilities
+│   │   ├── types/
+│   │   │   └── remotes.d.ts       # Module Federation types
+│   │   └── next.config.js         # MF configuration
+│   │
+│   ├── auth/                       # Auth micro frontend (Port 3001)
+│   │   ├── pages/
+│   │   ├── components/
+│   │   │   ├── LoginForm.tsx      # Exposed via MF
+│   │   │   └── RegisterForm.tsx   # Exposed via MF
+│   │   └── next.config.js
+│   │
+│   ├── dashboard/                  # Dashboard micro frontend (Port 3002)
+│   ├── analytics/                  # Analytics micro frontend (Port 3003)
+│   ├── billing/                    # Billing micro frontend (Port 3004)
+│   ├── admin/                      # Admin micro frontend (Port 3005)
+│   └── notifications/              # Notifications micro frontend (Port 3006)
+│
+├── packages/                       # Shared Packages
+│   ├── ui-kit/                    # Component library
+│   ├── design-tokens/             # Design variables
+│   ├── shared-state/              # State management
+│   ├── shared-utils/              # Utility functions
+│   ├── api-client/                # HTTP client
+│   └── config/                    # Shared configuration
+│
+├── e2e/                           # End-to-end tests
+└── docs/                          # Documentation
 ```
 
-Each remote uses:
-- `useSession()` from shared auth package
-- Federated route guards
+## Module Federation Configuration
 
-## Deployment Strategy
+### Host Configuration
 
-Each micro frontend deploys separately:
+```javascript
+// apps/host/next.config.js
+const { NextFederationPlugin } = require("@module-federation/nextjs-mf");
 
+module.exports = {
+  webpack(config, options) {
+    config.plugins.push(
+      new NextFederationPlugin({
+        name: "host",
+        remotes: {
+          auth: `auth@${AUTH_URL}/_next/static/chunks/remoteEntry.js`,
+          dashboard: `dashboard@${DASHBOARD_URL}/_next/static/chunks/remoteEntry.js`,
+          // ... other remotes
+        },
+        shared: {
+          react: { singleton: true, requiredVersion: false },
+          "react-dom": { singleton: true, requiredVersion: false },
+        },
+      })
+    );
+    return config;
+  },
+};
 ```
-- host → host.domain.com
-- auth → auth.domain.com/remoteEntry.js
-- dashboard → dashboard.domain.com/remoteEntry.js
+
+### Remote Configuration
+
+```javascript
+// apps/auth/next.config.js
+module.exports = {
+  webpack(config) {
+    config.plugins.push(
+      new NextFederationPlugin({
+        name: "auth",
+        filename: "static/chunks/remoteEntry.js",
+        exposes: {
+          "./LoginForm": "./components/LoginForm",
+          "./RegisterForm": "./components/RegisterForm",
+        },
+        shared: {
+          react: { singleton: true },
+          "react-dom": { singleton: true },
+        },
+      })
+    );
+    return config;
+  },
+};
 ```
 
-The host fetches remote definitions from a Remote Registry Service.
+## Design System
 
-### Remote Registry Example (JSON)
+### CSS Custom Properties
 
-```json
-{
-  "auth": "https://auth.domain.com/remoteEntry.js",
-  "dashboard": "https://dashboard.domain.com/remoteEntry.js"
+```css
+:root {
+  /* Primary Colors */
+  --primary-400: #818cf8;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+
+  /* Neutrals */
+  --neutral-100: #f4f4f5;
+  --neutral-900: #18181b;
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Typography */
+  --font-family: "Inter", sans-serif;
+
+  /* Effects */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 ```
 
-## CI/CD Pipeline
+### Component Patterns
 
-### For each frontend app:
-1. Install dependencies via Turborepo cache
-2. Run ESLint + Type checks
-3. Run unit tests
-4. Build the app
-5. Upload remoteEntry.js to CDN/S3
-6. Update Remote Registry API
+```tsx
+// Glassmorphism Card
+<div className="card">
+  {/* Background blur + subtle border + transparency */}
+</div>
+
+// Gradient Text
+<h1 className="gradient-text">Micro Frontend</h1>
+
+// Animated Elements
+<div className="animate-slide-up delay-2">Content</div>
+```
+
+## State Management
+
+### Shared State Package
+
+```typescript
+// packages/shared-state/src/stores/authStore.ts
+import { create } from "zustand";
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (user: User) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  login: (user) => set({ user, isAuthenticated: true }),
+  logout: () => set({ user: null, isAuthenticated: false }),
+}));
+```
+
+### Cross-MF Communication
+
+```typescript
+// Event-based communication
+window.dispatchEvent(
+  new CustomEvent("auth:login", {
+    detail: { user },
+  })
+);
+
+// In consuming micro frontend
+useEffect(() => {
+  const handler = (e) => setUser(e.detail.user);
+  window.addEventListener("auth:login", handler);
+  return () => window.removeEventListener("auth:login", handler);
+}, []);
+```
+
+## Build & Deployment
+
+### Turborepo Pipeline
+
+```json
+// turbo.json
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
+    }
+  }
+}
+```
+
+### Vercel Deployment
+
+Each micro frontend deploys independently:
+
+| App       | Vercel Project           | URL                  |
+| --------- | ------------------------ | -------------------- |
+| Host      | micro-frontend-host      | host.vercel.app      |
+| Auth      | micro-frontend-auth      | auth.vercel.app      |
+| Dashboard | micro-frontend-dashboard | dashboard.vercel.app |
+
+Environment variables configure remote URLs:
+
+```
+AUTH_URL=https://auth.vercel.app
+DASHBOARD_URL=https://dashboard.vercel.app
+```
+
+## Testing Strategy
+
+### Unit Tests (Jest + RTL)
+
+```typescript
+// __tests__/LoginForm.test.tsx
+describe("LoginForm", () => {
+  it("validates email format", async () => {
+    render(<LoginForm />);
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "invalid" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    expect(await screen.findByText("Invalid email")).toBeInTheDocument();
+  });
+});
+```
+
+### E2E Tests (Playwright)
+
+```typescript
+// e2e/auth.spec.ts
+test("user can login", async ({ page }) => {
+  await page.goto("/auth");
+  await page.fill('[name="email"]', "test@example.com");
+  await page.fill('[name="password"]', "password123");
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL("/dashboard");
+});
+```
 
 ## Security Considerations
 
-- CSP Headers for remote loading
-- Sandboxed iframes for isolated micro apps (optional mode)
-- JWT + HttpOnly cookies
-- Origin allowlist
-- Version pinning for remotes
+1. **Authentication** - JWT tokens stored in httpOnly cookies
+2. **CORS** - Configured per micro frontend
+3. **CSP** - Content Security Policy headers
+4. **Dependency Scanning** - npm audit in CI
+5. **Input Validation** - Zod schemas for form data
 
-## Observability & Monitoring
+## Performance Optimizations
 
-### Logging
-Each remote sends logs to a centralized logger:
-- User actions
-- Routing
-- Network failures
+1. **Code Splitting** - Each micro frontend loads independently
+2. **Shared Dependencies** - React loaded once, shared across MFs
+3. **Lazy Loading** - Dynamic imports for non-critical routes
+4. **Caching** - Turborepo caches build outputs
+5. **CDN** - Static assets served from Vercel Edge
 
-### Error Boundaries
-Each remote implements error boundaries. If a remote breaks, the host shows a fallback UI.
+## Future Roadmap
 
-### Performance Metrics
-The host monitors remote startup times.
-
-## Scalability Strategy
-
-- Add new apps by adding new packages and config
-- Auto-register new remotes via CI pipeline
-- Versioned remotes for backward compatibility
-
-## Technology Stack
-
-- **Framework**: Next.js 15+
-- **Module Federation**: Webpack Module Federation
-- **Monorepo Tool**: Turborepo
-- **Language**: TypeScript
-- **Package Manager**: pnpm
-- **Testing**: Jest, React Testing Library, Playwright
-- **CI/CD**: GitHub Actions
-- **Deployment**: CDN/S3
-
-## Future Enhancements
-
-1. **Enhanced Error Handling**: More sophisticated error boundaries and recovery mechanisms
-2. **Advanced State Management**: Implement more advanced patterns for cross-app state management
-3. **Performance Optimization**: Implement advanced caching and lazy loading strategies
-4. **Security Enhancements**: Add more robust security measures and monitoring
-5. **Developer Experience**: Improve tooling and documentation for developers
-6. **Observability**: Enhance logging and monitoring capabilities
-7. **Testing**: Expand test coverage and add more sophisticated testing strategies
+- [ ] Add Redis for session caching
+- [ ] Implement feature flags (LaunchDarkly)
+- [ ] Add observability (DataDog/Sentry)
+- [ ] Performance monitoring with Web Vitals
+- [ ] A/B testing infrastructure
