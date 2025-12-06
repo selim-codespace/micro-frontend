@@ -7,16 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "vercel-build": "node minimal-vercel-build.js"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@micro-frontend/config": "1.0.0",
-    "@micro-frontend/design-tokens": "1.0.0",
-    "@micro-frontend/shared-state": "1.0.0",
-    "@micro-frontend/shared-utils": "1.0.0",
-    "@micro-frontend/ui-kit": "1.0.0",
-    "@module-federation/nextjs-mf": "^8.8.49",
     "next": "14.2.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -25,8 +18,7 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "eslint": "^9.39.1",
-    "typescript": "^5.0.0",
-    "webpack": "^5.103.0"
+    "eslint": "^9.0.0",
+    "typescript": "^5.0.0"
   }
 }
