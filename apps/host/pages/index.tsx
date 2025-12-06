@@ -1,64 +1,105 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 
-// Note: In production with Module Federation enabled, AuthLoginForm would be imported from auth remote
-// For now, we use a local placeholder to demonstrate the architecture
+// Animated counter hook
+function useCountUp(end: number, duration: number = 2000, start: number = 0) {
+  const [count, setCount] = useState(start);
+  const countRef = useRef(start);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
-// Placeholder component for when remote fails to load
-const PlaceholderComponent: React.FC<{ name: string }> = ({ name }) => (
-  <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-    <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔌</div>
-    <p style={{ color: 'var(--neutral-400)' }}>{name} Micro Frontend</p>
-    <small style={{ color: 'var(--neutral-500)' }}>Connect to load component</small>
-  </div>
-);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
 
-// Loading component
-const LoadingComponent: React.FC<{ name: string }> = ({ name }) => (
-  <div className="card animate-pulse-glow" style={{ textAlign: 'center', padding: '2rem' }}>
-    <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
-    <p style={{ color: 'var(--neutral-400)' }}>Loading {name}...</p>
-  </div>
-);
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
 
-// Placeholder auth form that demonstrates where remote component would load
-const PlaceholderAuthForm: React.FC = () => (
-  <div style={{
-    background: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: 'var(--radius-lg)',
-    padding: '1.5rem'
-  }}>
-    <h3 style={{ marginBottom: '1rem', textAlign: 'center' }}>Sign In</h3>
-    <div style={{ marginBottom: '1rem' }}>
-      <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--neutral-400)', fontSize: '0.875rem' }}>Email</label>
-      <input type="email" placeholder="you@example.com" style={{
-        width: '100%',
-        padding: '0.75rem',
-        background: 'rgba(255, 255, 255, 0.05)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '0.5rem',
-        color: 'white'
-      }} />
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const startTime = Date.now();
+    const endTime = startTime + duration;
+
+    const tick = () => {
+      const now = Date.now();
+      const progress = Math.min((now - startTime) / duration, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(start + (end - start) * easeOut);
+
+      setCount(current);
+      countRef.current = current;
+
+      if (now < endTime) {
+        requestAnimationFrame(tick);
+      } else {
+        setCount(end);
+      }
+    };
+
+    requestAnimationFrame(tick);
+  }, [isVisible, end, duration, start]);
+
+  return { count, ref };
+}
+
+// Animated stat card component
+const AnimatedStatCard: React.FC<{ value: number; label: string; suffix: string; delay: number }> = ({
+  value, label, suffix, delay
+}) => {
+  const { count, ref } = useCountUp(value, 2000 + delay);
+
+  return (
+    <div ref={ref} className="card text-center stat-card">
+      <div className="stat-value gradient-text">
+        {count}{suffix}
+      </div>
+      <p className="stat-label">{label}</p>
+      <style jsx>{`
+        .stat-card {
+          position: relative;
+          overflow: hidden;
+        }
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        .stat-value {
+          font-size: 3rem;
+          font-weight: 800;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+        .stat-label {
+          color: var(--neutral-400);
+          font-size: 0.9rem;
+        }
+      `}</style>
     </div>
-    <div style={{ marginBottom: '1rem' }}>
-      <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--neutral-400)', fontSize: '0.875rem' }}>Password</label>
-      <input type="password" placeholder="••••••••" style={{
-        width: '100%',
-        padding: '0.75rem',
-        background: 'rgba(255, 255, 255, 0.05)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '0.5rem',
-        color: 'white'
-      }} />
-    </div>
-    <button className="btn btn-primary" style={{ width: '100%' }}>Sign In</button>
-    <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--neutral-500)', fontSize: '0.875rem' }}>
-      Demo from <code style={{ color: 'var(--primary-400)' }}>auth/LoginForm</code>
-    </p>
-  </div>
-);
+  );
+};
+
+// Tech stack logos
+const techStack = [
+  { name: 'Next.js', logo: '▲' },
+  { name: 'TypeScript', logo: 'TS' },
+  { name: 'React', logo: '⚛' },
+  { name: 'Turborepo', logo: '◈' },
+];
 
 // Feature card data
 const features = [
@@ -102,10 +143,10 @@ const features = [
 
 // Stats data
 const stats = [
-  { value: '7', label: 'Micro Frontends', suffix: '' },
-  { value: '6', label: 'Shared Packages', suffix: '' },
-  { value: '56', label: 'Unit Tests', suffix: '+' },
-  { value: '100', label: 'TypeScript', suffix: '%' },
+  { value: 7, label: 'Micro Frontends', suffix: '' },
+  { value: 6, label: 'Shared Packages', suffix: '' },
+  { value: 56, label: 'Unit Tests', suffix: '+' },
+  { value: 100, label: 'TypeScript', suffix: '%' },
 ];
 
 // Micro frontend apps
@@ -118,6 +159,44 @@ const microFrontends = [
   { name: 'Notifications', path: '/notifications', icon: '🔔', desc: 'Real-time Notifications', color: '#f97316' },
 ];
 
+// Placeholder auth form
+const PlaceholderAuthForm: React.FC = () => (
+  <div style={{
+    background: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: 'var(--radius-lg)',
+    padding: '1.5rem'
+  }}>
+    <h3 style={{ marginBottom: '1rem', textAlign: 'center' }}>Sign In</h3>
+    <div style={{ marginBottom: '1rem' }}>
+      <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--neutral-400)', fontSize: '0.875rem' }}>Email</label>
+      <input type="email" placeholder="you@example.com" style={{
+        width: '100%',
+        padding: '0.75rem',
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '0.5rem',
+        color: 'white'
+      }} />
+    </div>
+    <div style={{ marginBottom: '1rem' }}>
+      <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--neutral-400)', fontSize: '0.875rem' }}>Password</label>
+      <input type="password" placeholder="••••••••" style={{
+        width: '100%',
+        padding: '0.75rem',
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '0.5rem',
+        color: 'white'
+      }} />
+    </div>
+    <button className="btn btn-primary" style={{ width: '100%' }}>Sign In</button>
+    <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--neutral-500)', fontSize: '0.875rem' }}>
+      Demo from <code style={{ color: 'var(--primary-400)' }}>auth/LoginForm</code>
+    </p>
+  </div>
+);
+
 export default function HomePage() {
   return (
     <>
@@ -125,6 +204,13 @@ export default function HomePage() {
         <title>Micro Frontend Platform | Enterprise-Grade Architecture</title>
         <meta name="description" content="A modular, enterprise-grade Micro Frontend Platform built using Next.js 15+, Module Federation, TypeScript, and Turborepo" />
       </Head>
+
+      {/* Animated Background */}
+      <div className="animated-bg">
+        <div className="gradient-orb orb-1"></div>
+        <div className="gradient-orb orb-2"></div>
+        <div className="gradient-orb orb-3"></div>
+      </div>
 
       {/* Navigation */}
       <nav className="glass fixed w-full z-50" style={{ padding: 'var(--space-md) 0' }}>
@@ -135,15 +221,16 @@ export default function HomePage() {
           </Link>
           <div className="flex gap-lg items-center">
             <Link href="/dashboard" style={{ color: 'var(--neutral-300)', fontWeight: 500 }}>Dashboard</Link>
-            <Link href="/docs" style={{ color: 'var(--neutral-300)', fontWeight: 500 }}>Docs</Link>
+            <Link href="/analytics" style={{ color: 'var(--neutral-300)', fontWeight: 500 }}>Analytics</Link>
             <a
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-secondary"
-              style={{ padding: 'var(--space-sm) var(--space-md)', fontSize: '0.875rem' }}
+              className="github-btn"
             >
-              ⭐ GitHub
+              <span className="github-icon">⭐</span>
+              <span>Star on GitHub</span>
+              <span className="github-count">1.2k</span>
             </a>
           </div>
         </div>
@@ -151,64 +238,58 @@ export default function HomePage() {
 
       <main>
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center relative overflow-hidden" style={{ paddingTop: '6rem' }}>
+        <section className="hero-section min-h-screen flex items-center relative overflow-hidden" style={{ paddingTop: '6rem' }}>
           <div className="container">
             <div className="text-center" style={{ maxWidth: '900px', margin: '0 auto' }}>
+              {/* Tech Stack Badges */}
+              <div className="tech-stack animate-slide-up mb-lg">
+                {techStack.map((tech, i) => (
+                  <span key={i} className="tech-badge">
+                    <span className="tech-logo">{tech.logo}</span>
+                    {tech.name}
+                  </span>
+                ))}
+              </div>
+
               <div className="animate-slide-up">
                 <span className="badge mb-lg">🚀 Enterprise-Grade Architecture</span>
               </div>
 
-              <h1 className="animate-slide-up delay-1 mb-lg">
-                <span className="gradient-text">Micro Frontend</span>
+              <h1 className="animate-slide-up delay-1 mb-lg hero-title">
+                <span className="gradient-text-animated">Micro Frontend</span>
                 <br />
                 Platform
               </h1>
 
-              <p className="animate-slide-up delay-2" style={{
-                fontSize: '1.25rem',
-                color: 'var(--neutral-400)',
-                maxWidth: '700px',
-                margin: '0 auto var(--space-xl)'
-              }}>
+              <p className="animate-slide-up delay-2 hero-subtitle">
                 A modular, scalable architecture demonstrating enterprise patterns used by
                 <strong style={{ color: 'var(--neutral-200)' }}> AWS, Shopify, Uber, and Atlassian</strong>.
                 Built with Next.js, Module Federation, TypeScript, and Turborepo.
               </p>
 
-              <div className="animate-slide-up delay-3 flex gap-md justify-center">
-                <Link href="/dashboard" className="btn btn-primary">
+              <div className="animate-slide-up delay-3 flex gap-md justify-center hero-actions">
+                <Link href="/dashboard" className="btn btn-primary btn-lg">
                   Explore Platform →
                 </Link>
-                <Link href="/auth" className="btn btn-secondary">
+                <Link href="/auth" className="btn btn-secondary btn-lg">
                   Try Demo
                 </Link>
               </div>
             </div>
 
-            {/* Stats */}
+            {/* Animated Stats */}
             <div className="grid grid-4 mt-3xl animate-fade-in delay-4">
               {stats.map((stat, index) => (
-                <div key={index} className="card text-center">
-                  <div style={{ fontSize: '3rem', fontWeight: 800 }} className="gradient-text">
-                    {stat.value}{stat.suffix}
-                  </div>
-                  <p style={{ color: 'var(--neutral-400)', marginTop: 'var(--space-sm)' }}>{stat.label}</p>
-                </div>
+                <AnimatedStatCard
+                  key={index}
+                  value={stat.value}
+                  label={stat.label}
+                  suffix={stat.suffix}
+                  delay={index * 200}
+                />
               ))}
             </div>
           </div>
-
-          {/* Floating decoration */}
-          <div className="animate-float absolute" style={{
-            top: '20%',
-            right: '10%',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(40px)',
-            pointerEvents: 'none',
-          }} />
         </section>
 
         {/* Features Section */}
@@ -223,22 +304,12 @@ export default function HomePage() {
 
             <div className="grid grid-3">
               {features.map((feature, index) => (
-                <div key={index} className="card" style={{ '--hover-glow': feature.gradient } as React.CSSProperties}>
-                  <div style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: 'var(--radius-lg)',
-                    background: feature.gradient,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.5rem',
-                    marginBottom: 'var(--space-lg)',
-                  }}>
+                <div key={index} className="card feature-card" style={{ '--hover-glow': feature.gradient } as React.CSSProperties}>
+                  <div className="feature-icon" style={{ background: feature.gradient }}>
                     {feature.icon}
                   </div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--space-sm)' }}>{feature.title}</h3>
-                  <p style={{ color: 'var(--neutral-400)', fontSize: '0.9rem' }}>{feature.description}</p>
+                  <h3 className="feature-title">{feature.title}</h3>
+                  <p className="feature-desc">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -260,25 +331,17 @@ export default function HomePage() {
                 <Link
                   key={index}
                   href={mf.path}
-                  className="card flex items-center gap-lg"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  className="card mf-card flex items-center gap-lg"
                 >
-                  <div style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: 'var(--radius-md)',
+                  <div className="mf-icon" style={{
                     background: `linear-gradient(135deg, ${mf.color}40 0%, ${mf.color}20 100%)`,
-                    border: `1px solid ${mf.color}40`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.5rem',
+                    borderColor: `${mf.color}40`
                   }}>
                     {mf.icon}
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{mf.name}</h4>
-                    <p style={{ color: 'var(--neutral-500)', fontSize: '0.85rem' }}>{mf.desc}</p>
+                    <h4 className="mf-name">{mf.name}</h4>
+                    <p className="mf-desc">{mf.desc}</p>
                   </div>
                 </Link>
               ))}
@@ -296,33 +359,12 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
-              <div className="flex items-center gap-sm mb-lg">
-                <span style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: '#f43f5e'
-                }} />
-                <span style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: '#fbbf24'
-                }} />
-                <span style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: '#22c55e'
-                }} />
-                <span style={{
-                  marginLeft: 'auto',
-                  fontSize: '0.75rem',
-                  color: 'var(--neutral-500)'
-                }}>
-                  auth/LoginForm
-                </span>
+            <div className="card demo-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+              <div className="demo-header">
+                <span className="demo-dot" style={{ background: '#f43f5e' }} />
+                <span className="demo-dot" style={{ background: '#fbbf24' }} />
+                <span className="demo-dot" style={{ background: '#22c55e' }} />
+                <span className="demo-label">auth/LoginForm</span>
               </div>
               <PlaceholderAuthForm />
             </div>
@@ -339,16 +381,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="card" style={{
-              maxWidth: '1000px',
-              margin: '0 auto',
-              fontFamily: 'monospace',
-              fontSize: '0.9rem',
-              lineHeight: '1.4',
-              overflow: 'auto',
-            }}>
-              <pre style={{ color: 'var(--neutral-300)' }}>
-                {`
+            <div className="card architecture-diagram">
+              <pre>{`
 ┌─────────────────────────────────────────────────────────────────┐
 │                         HOST SHELL                               │
 │  ┌──────────────┬──────────────┬──────────────┬──────────────┐  │
@@ -364,30 +398,20 @@ export default function HomePage() {
      │  ──────────  │ │  ──────────  │ │  ──────────  │
      │  • Login     │ │  • Widgets   │ │  • Charts    │
      │  • Register  │ │  • Cards     │ │  • Reports   │
-     │  • Sessions  │ │  • Stats     │ │  • KPIs      │
      └──────────────┘ └──────────────┘ └──────────────┘
               │               │               │
               └───────────────┼───────────────┘
                               │
      ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
      │   BILLING    │ │    ADMIN     │ │NOTIFICATIONS │
-     │  ──────────  │ │  ──────────  │ │  ──────────  │
-     │  • Payments  │ │  • Users     │ │  • Alerts    │
-     │  • Plans     │ │  • Settings  │ │  • Messages  │
-     │  • Invoices  │ │  • Roles     │ │  • Events    │
      └──────────────┘ └──────────────┘ └──────────────┘
                               │
               ┌───────────────┼───────────────┐
-              │               │               │
               ▼               ▼               ▼
      ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
      │   UI-KIT     │ │ SHARED-STATE │ │  API-CLIENT  │
-     │  ──────────  │ │  ──────────  │ │  ──────────  │
-     │  Components  │ │  Zustand     │ │  Axios       │
-     │  Themes      │ │  Events      │ │  Types       │
      └──────────────┘ └──────────────┘ └──────────────┘
-`}
-              </pre>
+`}</pre>
             </div>
           </div>
         </section>
@@ -400,16 +424,16 @@ export default function HomePage() {
               Dive into the platform and experience the power of micro frontend architecture
             </p>
             <div className="flex gap-md justify-center">
-              <Link href="/dashboard" className="btn btn-primary">
+              <Link href="/dashboard" className="btn btn-primary btn-lg">
                 Open Dashboard →
               </Link>
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-secondary"
+                className="btn btn-secondary btn-lg"
               >
-                View Source
+                ⭐ Star on GitHub
               </a>
             </div>
           </div>
@@ -424,22 +448,275 @@ export default function HomePage() {
           </p>
           <div className="flex gap-lg">
             <a href="https://github.com" style={{ color: 'var(--neutral-400)' }}>GitHub</a>
-            <a href="/docs" style={{ color: 'var(--neutral-400)' }}>Documentation</a>
+            <Link href="/analytics" style={{ color: 'var(--neutral-400)' }}>Analytics</Link>
           </div>
         </div>
       </footer>
 
       <style jsx>{`
-        .spinner {
-          width: 24px;
-          height: 24px;
-          border: 2px solid rgba(255,255,255,0.1);
-          border-top-color: var(--primary-400);
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
+        /* Animated Background */
+        .animated-bg {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          overflow: hidden;
         }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+
+        .gradient-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.4;
+          animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+          width: 600px;
+          height: 600px;
+          background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+          top: -200px;
+          right: -200px;
+          animation-delay: 0s;
+        }
+
+        .orb-2 {
+          width: 500px;
+          height: 500px;
+          background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+          bottom: -150px;
+          left: -150px;
+          animation-delay: -7s;
+        }
+
+        .orb-3 {
+          width: 400px;
+          height: 400px;
+          background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          animation-delay: -14s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(50px, -50px) scale(1.1); }
+          50% { transform: translate(-30px, 30px) scale(0.95); }
+          75% { transform: translate(40px, 40px) scale(1.05); }
+        }
+
+        /* Tech Stack Badges */
+        .tech-stack {
+          display: flex;
+          justify-content: center;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .tech-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          color: var(--neutral-300);
+        }
+
+        .tech-logo {
+          font-weight: 700;
+          color: var(--primary-400);
+        }
+
+        /* Animated Gradient Text */
+        .gradient-text-animated {
+          background: linear-gradient(
+            135deg,
+            #667eea 0%,
+            #764ba2 25%,
+            #ec4899 50%,
+            #f97316 75%,
+            #667eea 100%
+          );
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradient-shift 8s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* Hero */
+        .hero-title {
+          font-size: 4.5rem;
+          line-height: 1.1;
+        }
+
+        .hero-subtitle {
+          font-size: 1.25rem;
+          color: var(--neutral-400);
+          max-width: 700px;
+          margin: 0 auto var(--space-xl);
+        }
+
+        .btn-lg {
+          padding: 1rem 2rem;
+          font-size: 1.1rem;
+        }
+
+        /* GitHub Button */
+        .github-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 0.5rem;
+          color: var(--neutral-200);
+          font-size: 0.875rem;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+
+        .github-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .github-count {
+          padding: 0.125rem 0.5rem;
+          background: rgba(99, 102, 241, 0.2);
+          border-radius: 9999px;
+          font-size: 0.75rem;
+          color: var(--primary-400);
+        }
+
+        /* Feature cards */
+        .feature-card {
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: var(--radius-lg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          margin-bottom: var(--space-lg);
+        }
+
+        .feature-title {
+          font-size: 1.25rem;
+          margin-bottom: var(--space-sm);
+        }
+
+        .feature-desc {
+          color: var(--neutral-400);
+          font-size: 0.9rem;
+        }
+
+        /* MF cards */
+        .mf-card {
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s;
+        }
+
+        .mf-card:hover {
+          transform: translateX(8px);
+        }
+
+        .mf-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: var(--radius-md);
+          border: 1px solid;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          flex-shrink: 0;
+        }
+
+        .mf-name {
+          font-size: 1.1rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .mf-desc {
+          color: var(--neutral-500);
+          font-size: 0.85rem;
+        }
+
+        /* Demo card */
+        .demo-card {
+          overflow: hidden;
+        }
+
+        .demo-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding-bottom: 1rem;
+          margin-bottom: 1rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .demo-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+        }
+
+        .demo-label {
+          margin-left: auto;
+          font-size: 0.75rem;
+          color: var(--neutral-500);
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+          max-width: 1000px;
+          margin: 0 auto;
+          font-family: monospace;
+          font-size: 0.85rem;
+          line-height: 1.4;
+          overflow: auto;
+        }
+
+        .architecture-diagram pre {
+          color: var(--neutral-300);
+          margin: 0;
+        }
+
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 2.5rem;
+          }
+
+          .tech-stack {
+            display: none;
+          }
+
+          .github-btn .github-count {
+            display: none;
+          }
         }
       `}</style>
     </>
